@@ -1,0 +1,32 @@
+{
+  "name": "KeyGreen Ops Theme",
+  "textClasses": {
+    "callout": { "fontSize": 18, "fontFamily": "Segoe UI Semibold" },
+    "title":   { "fontSize": 16, "fontFamily": "Segoe UI Semibold" },
+    "header":  { "fontSize": 12, "fontFamily": "Segoe UI Semibold" },
+    "label":   { "fontSize": 11, "fontFamily": "Segoe UI" }
+  },
+  "colors": [
+    "#0F7D3E",  "#1FA35B", "#66C18C", "#A8E6C3",
+    "#1D3A5F",  "#4C6FA9", "#89A5D6",
+    "#8C8C8C",  "#C2C2C2", "#E6E6E6"
+  ],
+  "visualStyles": {
+    "*": {
+      "*": {
+        "title": [ { "show": true, "fontSize": 12, "color": { "solid": { "color": "#1D3A5F" }}, "fontFamily": "Segoe UI Semibold" } ],
+        "labels": [ { "color": { "solid": { "color": "#1D3A5F" }}, "textSize": 11 } ],
+        "categoryAxis": [ { "labelColor": { "solid": { "color": "#1D3A5F" }}, "gridlineStyle": "dotted" } ],
+        "valueAxis": [ { "labelColor": { "solid": { "color": "#1D3A5F" }}, "gridlineStyle": "dotted" } ],
+        "legend": [ { "titleText": "", "labelColor": { "solid": { "color": "#1D3A5F" }}, "textSize": 11 } ],
+        "background": [ { "color": { "solid": { "color": "#FFFFFF" } }, "transparency": 0 } ]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [ { "color": { "solid": { "color": "#0F7D3E" }}, "textSize": 16 } ],
+        "categoryLabels": [ { "color": { "solid": { "color": "#1D3A5F" }}, "textSize": 12 } ]
+      }
+    }
+  }
+}
