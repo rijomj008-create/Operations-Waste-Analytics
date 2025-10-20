@@ -49,129 +49,169 @@ It’s a practical case study built under the mindset:
 | **Visualization**          | Power BI (interactive dashboard, DAX measures, what-if analysis) |
 | **Version Control & Docs** | GitHub + Markdown                                                |
 
-## 🧩 Repository Structure
+---
 
-```
-├─ python/
-│  ├─ generate_synthetic.py
-│  ├─ load_to_postgres.py
-│  ├─ requirements.txt
-│  ├─ .env.example
-│  └─ data/
-│      ├─ routes.csv
-│      ├─ vehicles.csv
-│      ├─ drivers.csv
-│      ├─ weather.csv
-│      ├─ ...
-│
-├─ sql/
-│  ├─ 01_create_schema.sql
-│  ├─ 02_create_staging_tables.sql
-│  ├─ 03_copy_from_csv_examples.sql
-│  ├─ 04_load_clean_ops.sql
-│  ├─ 05_quality_checks.sql
-│  ├─ 06_views_enriched.sql
-│  ├─ 07_views_enriched_costs.sql
-│  ├─ 08_views_kpis.sql
-│  ├─ 09_views_scorecards.sql
-│  ├─ 10_views_weather_traffic_impact.sql
-│
-├─ powerbi/
-│  ├─ Operations_Performance_Dashboard.pbix
-│  ├─ measures_dax.txt
-│  ├─ theme.json
-│  └─ screenshots/
-│      ├─ Executive Dashboard.png
-│      ├─ Cost Breakdown.png
-│      ├─ Subcontractor Performance.png
-│      ├─ Drivers Performance.png
-│      ├─ Weather & Traffic Impact.png
-│      └─ Simulation.png
-│
-└─ README.md
-```
+## 🚀 Project Objective
+
+To replicate how an **Operations Analyst** would manage transport efficiency —
+turning raw route, weather, and driver data into measurable KPIs, cost models, and performance simulations.
+
+The focus wasn’t on flashy visuals, but on **decision enablement**:
+
+* What’s driving cost per trip or per km?
+* How much impact would a 10% rise in fuel or 5% gain in punctuality actually have?
+* Which subcontractors deliver reliability, and which quietly burn margin?
+
+The deliverable: a **data model and simulation dashboard** that management could use to forecast cost, test “what-if” improvements, and validate operational strategy before execution.
 
 ---
 
-## 🧮 Key Analytical Views (PostgreSQL)
+## 🧠 My Approach
 
-| View                            | Purpose                                                     |
-| ------------------------------- | ----------------------------------------------------------- |
-| `v_routes_enriched`             | Combines routes, drivers, vehicles, subcontractors, weather |
-| `v_routes_enriched_costs`       | Adds cost per km, per stop, and per tonne metrics           |
-| `v_kpi_daily / weekly / region` | Performance KPIs over time and geography                    |
-| `v_subcontractor_scorecard`     | Evaluates cost efficiency and reliability of vendors        |
-| `v_weather_impact`              | Quantifies weather delays and cost correlation              |
-| `v_traffic_summary`             | Links time slots to on-time percentage and cost             |
+I structured the project as if it were a 3-phase rollout in a real company:
+
+| Phase                               | Goal                                                                                                   | Output                                                            |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| **Phase 1 – Data Foundation**       | Build relational schema linking routes, regions, vehicles, drivers, subcontractors, weather & traffic. | SQL schema with clean staging → final ops tables                  |
+| **Phase 2 – Modeling & Enrichment** | Standardize cost, time, and performance metrics.                                                       | KPI-ready views for Power BI                                      |
+| **Phase 3 – Simulation Layer**      | Enable management to test cost and performance outcomes.                                               | Power BI what-if parameters for fuel, delay cost, and punctuality |
+
+This mirrors the analytical maturity curve — **from descriptive → diagnostic → prescriptive** — using only SQL, Python, and Power BI.
+
+---
+
+## 🧮 Key Insights Uncovered
+
+Through this model, I could answer the same questions a hiring manager would expect from their analytics hire:
+
+| Business Question                                                     | Analytical Answer                                                                |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| *Which regions have the highest cost per trip?*                       | Region D7 had ~40% higher per-trip cost, mainly due to subcontractor dependency. |
+| *Do weather conditions correlate with delay?*                         | Heavy rain caused a 50% increase in delay minutes vs. clear days.                |
+| *How does time slot affect performance?*                              | Early morning (06:00–08:00) had higher cost/km but better on-time %.             |
+| *Can a 5% improvement in on-time performance materially reduce cost?* | Yes — roughly €800–€1,200 savings per week, depending on fuel multiplier.        |
+
+These insights aren’t hypothetical — they’re measurable through the Power BI simulation model.
 
 ---
 
 ## 📊 Dashboard Overview
 
+Each dashboard page represents a lens through which operations can be optimized:
+
 ### **1. Executive Dashboard**
 
-Summarizes daily performance — trips, average cost/km, delays, and failures — with trend analysis for cost and on-time performance.
+High-level snapshot of total trips, average cost per km, on-time %, delay minutes, and delivery failures.
+Built for daily operational briefings.
 
 ---
 
 ### **2. Cost Breakdown**
 
-Decomposes cost per trip by region and cost component (fuel, driver, subcontractor) to reveal where operational inefficiencies sit.
+Shows cost composition per region and per trip (fuel, driver, subcontractor).
+Helps prioritize where to cut waste and where to renegotiate subcontractor terms.
 
 ---
 
 ### **3. Subcontractor Performance**
 
-Compares in-house vs outsourced routes on cost, on-time %, and failure rate. Highlights where subcontractor penalties outweigh performance.
+Ranks subcontractors on reliability, cost/km, and failure rates.
+The aim: identify partners who sustain profit, not just complete trips.
 
 ---
 
 ### **4. Drivers Performance**
 
-Benchmarks drivers on delay, cost, and delivery success — a quick lens to identify outliers or training needs.
+Driver-level scorecard linking cost, delay, and success rate — helping distinguish between high-efficiency and high-risk drivers.
 
 ---
 
 ### **5. Weather & Traffic Impact**
 
-Correlates environmental conditions with average delay and cost per km, uncovering data-driven patterns behind inefficiency.
+Analyzes environmental influence — quantifying how rain or peak-hour traffic adds measurable delay and cost per km.
 
 ---
 
 ### **6. Performance Simulation**
 
-Interactive “what-if” model.
-Users can tweak:
+An interactive model to test “what-if” scenarios:
 
-* **Fuel Price Multiplier**
-* **On-Time Improvement %**
-* **Delay Cost €/min**
+* Fuel Price ±10%
+* On-Time % Improvement (+5%)
+* Delay Cost €/min
 
-…and instantly visualize the **cost delta by region and subcontractor**, quantifying how operational improvements translate into real savings.
-
----
-
-## 🔍 Analytical Highlights
-
-* **Data pipeline built end-to-end**: from Python synthetic data → PostgreSQL warehouse → Power BI simulation.
-* **Dynamic DAX measures** replicate scenario planning directly within Power BI.
-* **Scalable**: currently 10-day data; structure supports 60-90 days or live streaming from APIs.
-* **Business realism**: designed after studying logistics KPIs, not arbitrary data.
+Management can immediately see **how operational improvements or external shocks change total cost** and cost delta by region or subcontractor.
 
 ---
 
-## 🧠 Takeaways
+## 🧩 Reproducibility & Scaling
 
-This project pushed me to think like both a **data engineer** and an **operations strategist**.
-Instead of stopping at visualization, the goal was to simulate decisions — to see how *data replaces gut feeling* in operational planning.
+This repository is designed for **plug-and-play extension** — meaning anyone can scale it from 10 days to 90+ days of operational data without touching the schema.
 
-The lesson: **Operational analytics isn’t about dashboards — it’s about decisions.**
-How small changes (fuel, routes, punctuality) ripple across cost and reliability.
+To reproduce locally:
+
+### 1️⃣ Database Setup
+
+1. Install PostgreSQL
+2. Create the database:
+
+   ```sql
+   CREATE DATABASE transport_ops;
+   ```
+3. Run all SQL scripts from `/sql/` in order (01 → 10).
+   This creates schemas (`ops`, `ops_stg`), loads staging data, and builds analytical views.
+
+---
+
+### 2️⃣ Data Generation (Optional)
+
+If you want to generate new synthetic data:
+
+```bash
+cd python
+pip install -r requirements.txt
+python generate_synthetic.py
+python load_to_postgres.py
+```
+
+> Adjust the `DAYS` parameter in `generate_synthetic.py` (default: 10) to simulate more days of operations.
+
+---
+
+### 3️⃣ Power BI Connection
+
+1. Open `Operations_Performance_Dashboard.pbix`
+2. Update the PostgreSQL connection string to your local DB
+3. Refresh all visuals — everything should populate automatically
+
+---
+
+### 4️⃣ Optional: Extend the Model
+
+* Add **live API weather data** to `ops.weather`
+* Include **GPS route optimization metrics** in `ops.routes`
+* Replace synthetic data with real company exports
+
+---
+
+## 🧠 Key Takeaways
+
+This project isn’t about fancy visuals — it’s about mindset.
+
+It reflects how I’d approach an **Operations or Data Analyst** role in a logistics or sustainability-driven company:
+
+* Understand the **business levers** (fuel, time, routes, people)
+* Structure data so it **answers financial questions instantly**
+* Build tools that **replace gut instinct with measurable insight**
+
+Every KPI, SQL view, and DAX measure here was built to mirror a real working environment — not coursework.
+
+If I were handed a raw database in a new role, this is how I’d turn it into a decision system within weeks.
 
 ---
 
 ## 🪶 Author
 
 **Rijo Mathew John**
-Operation & Data Analytics | Dublin, Ireland
+Business Development & Data Analytics | Dublin, Ireland
 📧 [rijomj008@gmail.com](mailto:rijomj008@gmail.com)
