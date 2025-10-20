@@ -1,0 +1,6 @@
+pandas
+numpy
+faker
+python-dateutil
+psycopg2-binary
+python-dotenv
