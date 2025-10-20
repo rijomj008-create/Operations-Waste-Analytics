@@ -1,0 +1,138 @@
+-- =========
+-- CORE COUNTS
+-- =========
+Trips =
+COUNTROWS ( 'ops.v_routes_enriched_costs' )
+
+On-Time Trips =
+CALCULATE ( [Trips], 'ops.v_routes_enriched_costs'[on_time_flag] = 1 )
+
+Late Trips =
+[Trips] - [On-Time Trips]
+
+-- =========
+-- TIME / DELAY
+-- =========
+Avg Delay (min) =
+AVERAGE ( 'ops.v_routes_enriched_costs'[delay_minutes] )
+
+Delay Minutes (Total) =
+SUM ( 'ops.v_routes_enriched_costs'[delay_minutes] )
+
+-- =========
+-- COSTS & DISTANCE
+-- =========
+Total Cost € =
+SUM ( 'ops.v_routes_enriched_costs'[total_cost_eur] )
+
+Total Distance (km) =
+SUM ( 'ops.v_routes_enriched_costs'[total_distance_km] )
+
+Avg Cost / Trip € =
+DIVIDE ( [Total Cost €], [Trips] )
+
+Avg Cost / km € =
+DIVIDE ( [Total Cost €], [Total Distance (km)] )
+
+-- =========
+-- RELIABILITY
+-- =========
+On-Time % =
+DIVIDE ( [On-Time Trips], [Trips] )
+
+Failed Deliveries =
+SUM ( 'ops.v_routes_enriched_costs'[failed_deliveries] )
+
+Failed % =
+DIVIDE ( [Failed Deliveries], [Trips] )
+
+-- =========
+-- UTILISATION
+-- =========
+Avg Utilisation % =
+AVERAGE ( 'ops.v_routes_enriched_costs'[utilisation_pct] )
+
+Utilisation Band =
+VAR u = AVERAGE ( 'ops.v_routes_enriched_costs'[utilisation_pct] )
+RETURN
+SWITCH ( TRUE(),
+    u >= 90, "90–100%",
+    u >= 75, "75–89%",
+    u >= 60, "60–74%",
+    "Under 60%"
+)
+
+-- =========
+-- COST COMPONENTS
+-- =========
+Fuel Cost € =
+SUM ( 'ops.v_routes_enriched_costs'[fuel_cost_eur] )
+
+Driver Cost € =
+SUM ( 'ops.v_routes_enriched_costs'[driver_cost_eur] )
+
+Sub Cost (Base+Km+Pen) € =
+    SUM ( 'ops.v_routes_enriched_costs'[sub_base_cost_eur] )
+  + SUM ( 'ops.v_routes_enriched_costs'[sub_variable_km_cost_eur] )
+  + SUM ( 'ops.v_routes_enriched_costs'[sub_penalties_eur] )
+
+-- =========
+-- WHAT-IF PARAMETERS (READ VALUES)
+-- Create these from Modeling > New parameter first.
+-- =========
+Fuel Multiplier (Sel) =
+COALESCE ( SELECTEDVALUE ( 'Fuel Multiplier'[Fuel Multiplier Value] ), 1 )
+
+OnTime Improvement (Sel) =
+DIVIDE ( COALESCE ( SELECTEDVALUE ( 'OnTime Improvement %'[OnTime Improvement % Value] ), 0 ), 100.0 )
+
+Delay Cost €/min (Sel) =
+COALESCE ( SELECTEDVALUE ( 'Delay Cost €/min'[Delay Cost €/min Value] ), 1.20 )
+
+-- =========
+-- SIMULATION LOGIC
+-- =========
+Adjusted Fuel Cost € =
+[Fuel Cost €] * [Fuel Multiplier (Sel)]
+
+Delay Minutes (New) =
+[Delay Minutes (Total)] * ( 1 - [OnTime Improvement (Sel)] )
+
+Delay Minutes Saved =
+[Delay Minutes (Total)] - [Delay Minutes (New)]
+
+Delay Savings € =
+[Delay Minutes Saved] * [Delay Cost €/min (Sel)]
+
+Adjusted Total Cost € =
+[Driver Cost €] + [Adjusted Fuel Cost €] + [Sub Cost (Base+Km+Pen) €] - [Delay Savings €]
+
+Cost Delta € =
+[Adjusted Total Cost €] - [Total Cost €]
+
+Cost Delta % =
+DIVIDE ( [Cost Delta €], [Total Cost €] )
+
+-- =========
+-- DYNAMIC TITLES / SUMMARY
+-- =========
+Title – Overview =
+"Operations Overview — " &
+IF ( HASONEVALUE ( 'Date'[Month] ), SELECTEDVALUE ( 'Date'[Month] ), "All Dates" )
+
+Title – Subcontractor =
+"Subcontractor Scorecard — " &
+IF ( HASONEVALUE ( 'Date'[Month] ), SELECTEDVALUE ( 'Date'[Month] ), "All Dates" )
+
+Title – Simulation =
+"Performance Simulation — Fuel ×" &
+FORMAT ( [Fuel Multiplier (Sel)], "0.00" ) &
+" | On-Time +" &
+FORMAT ( [OnTime Improvement (Sel)] * 100, "0" ) & "%"
+
+Scenario Summary =
+"Fuel ×" & FORMAT ( [Fuel Multiplier (Sel)], "0.00" ) &
+"; On-Time +" & FORMAT ( [OnTime Improvement (Sel)] * 100, "0" ) & "% → Cost " &
+IF ( [Cost Delta €] >= 0, "↑ ", "↓ " ) &
+FORMAT ( ABS ( [Cost Delta €] ), "€#,0" ) &
+" (" & FORMAT ( [Cost Delta %], "0.0%" ) & ")"
